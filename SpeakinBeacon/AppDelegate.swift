@@ -75,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             
             //Load beacons from custom URL
             guard let data = self.readBeaconFile() else {
-                //Load beacons from CloudKit
+                //Load beacons from iCloud
                 self.getBeaconsCloudKit({() in
                     if !self.beaconArray.isEmpty {
                         NotificationCenter.default.post(name: Notification.Name("Launch"), object: nil)

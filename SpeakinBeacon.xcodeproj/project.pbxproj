@@ -14,6 +14,10 @@
 		3D26875D1F5EF69500B15E62 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3D26875B1F5EF69500B15E62 /* LaunchScreen.storyboard */; };
 		3D2687671F5EFABD00B15E62 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D2687661F5EFABD00B15E62 /* CloudKit.framework */; };
 		3D2687691F5EFC5400B15E62 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3D2687681F5EFC5400B15E62 /* Settings.bundle */; };
+		3DBEDF5A1F6AD74700D448F6 /* science.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3DBEDF581F6AD74700D448F6 /* science.jpg */; };
+		3DBEDF5B1F6AD74700D448F6 /* wolves.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3DBEDF591F6AD74700D448F6 /* wolves.jpg */; };
+		3DBEDF5E1F6AD76500D448F6 /* intro.html in Resources */ = {isa = PBXBuildFile; fileRef = 3DBEDF5C1F6AD76500D448F6 /* intro.html */; };
+		3DBEDF5F1F6AD76500D448F6 /* image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3DBEDF5D1F6AD76500D448F6 /* image.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +31,10 @@
 		3D2687641F5EFAB800B15E62 /* SpeakinBeacon.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SpeakinBeacon.entitlements; sourceTree = "<group>"; };
 		3D2687661F5EFABD00B15E62 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		3D2687681F5EFC5400B15E62 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		3DBEDF581F6AD74700D448F6 /* science.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = science.jpg; sourceTree = "<group>"; };
+		3DBEDF591F6AD74700D448F6 /* wolves.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = wolves.jpg; sourceTree = "<group>"; };
+		3DBEDF5C1F6AD76500D448F6 /* intro.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = intro.html; sourceTree = "<group>"; };
+		3DBEDF5D1F6AD76500D448F6 /* image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = image.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +70,10 @@
 		3D2687511F5EF69100B15E62 /* SpeakinBeacon */ = {
 			isa = PBXGroup;
 			children = (
+				3DBEDF5C1F6AD76500D448F6 /* intro.html */,
+				3DBEDF5D1F6AD76500D448F6 /* image.jpg */,
+				3DBEDF581F6AD74700D448F6 /* science.jpg */,
+				3DBEDF591F6AD74700D448F6 /* wolves.jpg */,
 				3D2687641F5EFAB800B15E62 /* SpeakinBeacon.entitlements */,
 				3D2687521F5EF69300B15E62 /* AppDelegate.swift */,
 				3D2687541F5EF69300B15E62 /* ViewController.swift */,
@@ -153,7 +165,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				3D2687691F5EFC5400B15E62 /* Settings.bundle in Resources */,
+				3DBEDF5A1F6AD74700D448F6 /* science.jpg in Resources */,
+				3DBEDF5E1F6AD76500D448F6 /* intro.html in Resources */,
+				3DBEDF5F1F6AD76500D448F6 /* image.jpg in Resources */,
 				3D26875D1F5EF69500B15E62 /* LaunchScreen.storyboard in Resources */,
+				3DBEDF5B1F6AD74700D448F6 /* wolves.jpg in Resources */,
 				3D26875A1F5EF69500B15E62 /* Assets.xcassets in Resources */,
 				3D2687581F5EF69400B15E62 /* Main.storyboard in Resources */,
 			);
@@ -335,6 +351,7 @@
 				3D2687631F5EF69600B15E62 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
