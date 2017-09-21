@@ -20,6 +20,19 @@
 		3DBEDF5F1F6AD76500D448F6 /* image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3DBEDF5D1F6AD76500D448F6 /* image.jpg */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3DBEDF6F1F716F6900D448F6 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3D26874F1F5EF69100B15E62 /* SpeakinBeacon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpeakinBeacon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D2687521F5EF69300B15E62 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +116,7 @@
 				3D26874B1F5EF69100B15E62 /* Sources */,
 				3D26874C1F5EF69100B15E62 /* Frameworks */,
 				3D26874D1F5EF69100B15E62 /* Resources */,
+				3DBEDF6F1F716F6900D448F6 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);

@@ -20,7 +20,7 @@
 			<key>Key</key>
 			<string>baseURL</string>
 			<key>DefaultValue</key>
-			<string></string>
+			<string>http://storage.googleapis.com/speakin-beacon</string>
 			<key>IsSecure</key>
 			<false/>
 			<key>KeyboardType</key>

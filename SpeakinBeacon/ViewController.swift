@@ -21,7 +21,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     let publicDB : CKDatabase
     var predicate = NSPredicate()
     var beaconArray = [[String:String]]()
-    var beaconCategory = ""
     var beaconUUID = ""
     var beaconMajor = ""
     var beaconMinor = ""
@@ -64,14 +63,31 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     //Load the beacon list and main UUID.  Load the welcome page of the app
     func loadBeaconData() {
         messageView.delegate = self
-        print("Launch")
         self.beaconArray = appDelegate.beaconArray
         self.beaconUUID = appDelegate.beaconUUID
         self.baseURL = appDelegate.baseURL
-        let homeURL = self.baseURL + self.beaconUUID + "/index.html"
+        //check the entered baseURL for a trailing slash and add one if needed.  This normalizes the URL for future use.
+        if self.baseURL.characters.last! != "/" {
+            self.baseURL += "/"
+        }
+        let homeURL = self.baseURL + "index.html"
+        print("URL: \(homeURL)")
         var request = URLRequest(url: URL(string:homeURL)!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
         request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-        self.messageView.loadRequest(request)
+        
+        //Check if home page URL exists otherwise load bundled intro.html
+        self.fileExistsAt(url: URL(string: homeURL)!, completion: ({(exists:Bool) in
+            if exists {
+                DispatchQueue.main.async {
+                    self.messageView.loadRequest(request)
+                }
+            } else {
+                print("Webview error")
+                DispatchQueue.main.async {
+                    self.messageView.loadRequest(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
+                }
+            }
+        }))
         self.startScanning()
     }
     
@@ -88,6 +104,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         locationManager.delegate = self
         locationManager.requestAlwaysAuthorization()
         self.activityIndicator.isHidden = true
+        self.loadBeaconData()
     }
     
     func noBeaconAlert() {
@@ -111,46 +128,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     }
     
     //MARK: iBeacon support
-   /* func getURI(_ completion:@escaping ()->Void) {
-        let predicate = NSPredicate(format: "TRUEPREDICATE", argumentArray: [])
-        let query = CKQuery(recordType: "URI", predicate: predicate)
-        
-        publicDB.perform(query, inZoneWith: nil) { results, error in
-            if error != nil {
-                print(error!)
-            } else {
-                for item in results! {
-                    self.baseURL = item .object(forKey: "base") as! String
-                }
-                completion()
-            }
-        }
-    }*/
-    
-    
-    /*func getBeacons(_ completion:@escaping ()->Void) {
-        let predicate = NSPredicate(format: "TRUEPREDICATE", argumentArray: [])
-        let query = CKQuery(recordType: "Beacon", predicate: predicate)
-        
-        publicDB.perform(query, inZoneWith: nil) { results, error in
-            if error != nil {
-                print(error!)
-            } else {
-                for item in results! {
-                    var beacon = [String:String]()
-                    beacon["name"] = item .object(forKey: "Name") as! String?
-                    beacon["category"] = item .object(forKey: "Category") as! String?
-                    beacon["uuid"] = item .object(forKey: "UUID") as! String?
-                    beacon["major"] = item .object(forKey: "Major") as! String?
-                    beacon["minor"] = item .object(forKey: "Minor") as! String?
-                    self.beaconArray.append(beacon)
-                }
-                self.beaconUUID = self.beaconArray[0]["uuid"]!
-                completion()
-            }
-        }
-    }*/
-    
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         print("changed auth")
     }
@@ -200,11 +177,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     //Ranging will detect relative distance to the beacon. It returns Far, Near or Immediate.
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        
+        print("Found \(beacons.count) beacon")
         if beacons.count > 0 {
+            print("Beacon \(beacons[0])")
             let tempName = String(format: "%d",beacons[0].minor.intValue)
             let tempArray = beaconArray.filter{$0["minor"] == tempName}
-            self.beaconCategory = tempArray[0]["category"]!
             self.beaconMajor = tempArray[0]["major"]!
             self.beaconMinor = tempArray[0]["minor"]!
             updateDistance(beacons[0].proximity)
@@ -243,7 +220,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     }
     
     func resetScreen() {
-        let homeURL = self.baseURL + self.beaconUUID + "/index.html"
+        let homeURL = self.baseURL + "index.html"
         var request = URLRequest(url: URL(string:homeURL)!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
         request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
         self.messageView.loadRequest(request)
@@ -409,6 +386,21 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         controller.dismiss(animated: true, completion: nil)
+    }
+    
+    func fileExistsAt(url : URL, completion: @escaping (Bool) -> Void) {
+        let checkSession = Foundation.URLSession.shared
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        request.timeoutInterval = 1.0 // Adjust to your needs
+        
+        let task = checkSession.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if let httpResp: HTTPURLResponse = response as? HTTPURLResponse {
+                completion(httpResp.statusCode == 200 || httpResp.statusCode == 302 || httpResp.statusCode == 304)
+            }
+        })
+        
+        task.resume()
     }
     
     override func didReceiveMemoryWarning() {

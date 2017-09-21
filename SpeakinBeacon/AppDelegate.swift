@@ -30,18 +30,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         publicDB = container.publicCloudDatabase
         super.init()
     }
-
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         //Load initial value into app setting for beacon file location.  This will cause app to load from CloudKit.
         let defaults:UserDefaults = UserDefaults.standard
         var appDefaults = Dictionary<String, AnyObject>()
-        appDefaults["baseURL"] = "http://storage.googleapis.com/speakin-beacon/" as AnyObject
+        appDefaults["baseURL"] = "https://storage.googleapis.com/speakin-beacon" as AnyObject
         defaults.register(defaults: appDefaults)
         defaults.synchronize()
         
         registerForPushNotifications(application: application)
-        
         self.loadBeaconInfo()
         
         return true
@@ -66,6 +66,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return
         }
         self.baseURL = tempURL
+        //check the entered baseURL for a trailing slash and add one if needed.  This normalizes the URL for future use.
+        if self.baseURL.characters.last! != "/" {
+            self.baseURL += "/"
+        }
         completion()
     }
     
@@ -77,9 +81,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             guard let data = self.readBeaconFile() else {
                 //Load beacons from iCloud
                 self.getBeaconsCloudKit({() in
-                    if !self.beaconArray.isEmpty {
-                        NotificationCenter.default.post(name: Notification.Name("Launch"), object: nil)
-                    }
                 })
                 return
             }
@@ -96,8 +97,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
             self.beaconUUID = self.beaconArray[0]["uuid"]!
-            
-            NotificationCenter.default.post(name: Notification.Name("Launch"), object: nil)
         })
     }
     
@@ -117,7 +116,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 for item in results! {
                     var beacon = [String:String]()
                     beacon["name"] = item .object(forKey: "Name") as! String?
-                    beacon["category"] = item .object(forKey: "Category") as! String?
                     beacon["uuid"] = item .object(forKey: "UUID") as! String?
                     beacon["major"] = item .object(forKey: "Major") as! String?
                     beacon["minor"] = item .object(forKey: "Minor") as! String?
@@ -158,7 +156,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // Enable or disable features based on authorization
             if granted {
                 print("Approval granted to send notifications")
-                UIApplication.shared.registerForRemoteNotifications()
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
             }
         }
     }
