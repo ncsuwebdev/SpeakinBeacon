@@ -17,7 +17,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>2</string>
+	<string>3</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -27,13 +27,13 @@
 	</dict>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>The Speakin Beacon app uses Bluetooth to deliver location specific information.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Speakin beacon app would like to use your location to provide location specific information for the demo.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Speakin beacon app would like to use your location to provide location specific information for the demo.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Speakin beacon app would like to use your location to provide location specific information for the demo.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Speakin beacon app would like to use your location to provide location specific information for the demo.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Speakin beacon app would like to use your location to provide location specific information for the demo.</string>
 	<key>UIBackgroundModes</key>
 	<array>

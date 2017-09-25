@@ -235,6 +235,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         var tempData = ""
         var imageExists = false
         imageExists = ((try? imageCloudURL?.checkResourceIsReachable()) ?? false)!
+        print("Image: \(imageExists)")
         if (imageExists) {
             let task = URLSession.shared.dataTask(with: imageCloudURL!, completionHandler: { data, response, error in
                 
@@ -243,15 +244,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                 if ((error) == nil) {
                     do {
                         try UIImagePNGRepresentation(UIImage(data: (data)!)!)?.write(to: fileURL)
-                    } catch {print ("Image error") }
+                    } catch {print ("Image error")
+                    }
                 }
                 
                 DispatchQueue.main.async {
                     self.assetImageURL = fileURL
-                    completion()
                 }
             })
             task.resume()
+        } else {
+            self.assetImageURL = Bundle.main.url(forResource: "wolves", withExtension: "jpg")
+            print("No image: \(String(describing: self.assetImageURL))")
         }
         do {
             tempData = try String(contentsOf: notificationDataURL!)
@@ -275,6 +279,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             content.categoryIdentifier = ""
             
             do {
+                print("\(String(describing: self.assetImageURL))")
                 let url = self.assetImageURL
                 let attachment = try UNNotificationAttachment(identifier: "logo", url: url!, options: nil)
                 content.attachments = [attachment]
@@ -282,7 +287,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                 if major == "2000" {
                     //Add the action buttons in the notification
                     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    appDelegate.notificationActionURL = self.baseURL + self.beaconUUID + "/" + self.beaconMajor + "/" + self.beaconMinor + "/index.html"
+                    //appDelegate.notificationActionURL = self.baseURL + self.beaconUUID + "/" + self.beaconMajor + "/" + self.beaconMinor + "/index.html"
+                    appDelegate.notificationActionURL = "https://www.ncsu.edu"
                     let action = UNNotificationAction(identifier: "viewSite", title: "Visit Web Site", options: [])
                     let category = UNNotificationCategory(identifier: "viewCategory", actions: [action], intentIdentifiers: [], options: [])
                     UNUserNotificationCenter.current().setNotificationCategories([category])
