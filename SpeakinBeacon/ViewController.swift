@@ -25,9 +25,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     var beaconMajor = ""
     var beaconMinor = ""
     var lastBeaconMinor = ""
-    var lastPopupBeaconMinor = ""
-    var lastBuildingBeaconMinor = ""
-    var lastExhibitBeaconMinor = ""
+    var lastMessageBeaconMinor = ""
+    var lastUIBeaconMinor = ""
     var payloadURL = URL(string:"")
     var assetImageURL = URL(string:"")
     var assetText = ""
@@ -71,7 +70,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             self.baseURL += "/"
         }
         let homeURL = self.baseURL + "index.html"
-        print("URL: \(homeURL)")
         var request = URLRequest(url: URL(string:homeURL)!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
         request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
         
@@ -82,7 +80,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                     self.messageView.loadRequest(request)
                 }
             } else {
-                print("Webview error")
                 DispatchQueue.main.async {
                     self.messageView.loadRequest(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
                 }
@@ -119,14 +116,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         self.present(alertController, animated: true, completion: nil)
     }
     
-    
-    @IBAction func launchWeb() {
-        let url = URL(string:"https://www.ncsu.edu/")
-        let sfc = SFSafariViewController(url: url!)
-        sfc.delegate = self
-        self.present(sfc, animated: true, completion: nil)
-    }
-    
     //MARK: iBeacon support
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         print("changed auth")
@@ -135,7 +124,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     //Set up beacon regions.  For this example we are setting a region for every beacon, but you don't have to do that.  There is a limit of 20 regions that can be defined.
     func startScanning() {
         for entry in beaconArray {
-            print("scan")
             let localBeaconRegion = CLBeaconRegion(proximityUUID:UUID(uuidString: entry["uuid"]!)!, major: UInt16(entry["major"]!)!, minor: UInt16(entry["minor"]!)!, identifier: entry["name"]!)
             let mainBeaconRegion = CLBeaconRegion(proximityUUID: UUID(uuidString: entry["uuid"]!)!, identifier: "mainRegion")
             mainBeaconRegion.notifyOnEntry = true
@@ -145,7 +133,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     }
     
     func stopScanning() {
-        print("Stop Scanning")
         for entry in beaconArray {
             let localBeaconRegion = CLBeaconRegion(proximityUUID:UUID(uuidString: entry["uuid"]!)!, major: UInt16(entry["major"]!)!, minor: UInt16(entry["minor"]!)!, identifier: entry["name"]!)
             let mainBeaconRegion = CLBeaconRegion(proximityUUID: UUID(uuidString: entry["uuid"]!)!, identifier: "mainRegion")
@@ -168,22 +155,23 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         if let beaconRegion = region as? CLBeaconRegion {
             self.sendRegionNotification(message:"Thanks for using the Speakin Beacon Demo.",image: "science",id:"regionExit")
-            self.lastExhibitBeaconMinor = ""
-            self.lastPopupBeaconMinor = ""
-            self.lastBuildingBeaconMinor = ""
+            self.lastUIBeaconMinor = ""
+            self.lastMessageBeaconMinor = ""
             self.resetScreen()
         }
     }
     
     //Ranging will detect relative distance to the beacon. It returns Far, Near or Immediate.
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        print("Found \(beacons.count) beacon")
         if beacons.count > 0 {
             print("Beacon \(beacons[0])")
+            //Filter the beaconArray to get the data matching the ranged beacon
             let tempName = String(format: "%d",beacons[0].minor.intValue)
             let tempArray = beaconArray.filter{$0["minor"] == tempName}
             self.beaconMajor = tempArray[0]["major"]!
             self.beaconMinor = tempArray[0]["minor"]!
+            //self.beaconMajor = String(format: "%d",beacons[0].major.intValue)
+            //self.beaconMinor = String(format: "%d",beacons[0].minor.intValue)
             updateDistance(beacons[0].proximity)
         }
     }
@@ -200,33 +188,36 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                 break
             case .immediate:
                 if self.beaconMajor == "1000" {
-                    if self.beaconMinor != self.lastBuildingBeaconMinor {
+                    if self.beaconMinor != self.lastUIBeaconMinor {
                         self.updateView()
                     }
-                    self.lastBuildingBeaconMinor = self.beaconMinor
+                    print("Beacon 1 \(self.beaconMajor) \(self.beaconMinor)")
+                    self.lastUIBeaconMinor = self.beaconMinor
                 } else if self.beaconMajor == "2000" {
-                    if self.beaconMinor != self.lastPopupBeaconMinor {
+                    if self.beaconMinor != self.lastMessageBeaconMinor {
                         self.sendNotification(major: self.beaconMajor)
                     }
-                    self.lastPopupBeaconMinor = self.beaconMinor
+                    self.lastMessageBeaconMinor = self.beaconMinor
                 } else if self.beaconMajor == "3000" {
-                    if self.beaconMinor != self.lastExhibitBeaconMinor {
+                    if self.beaconMinor != self.lastUIBeaconMinor {
                         self.updateView()
                     }
-                    self.lastExhibitBeaconMinor = self.beaconMinor
+                    print("Beacon 3 \(self.beaconMajor) \(self.beaconMinor)")
+                    self.lastUIBeaconMinor = self.beaconMinor
                 }
             }
         }
     }
     
-    func resetScreen() {
+    //Action for refresh button to reload the initial index.html page
+    @IBAction func resetScreen() {
         let homeURL = self.baseURL + "index.html"
         var request = URLRequest(url: URL(string:homeURL)!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
         request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
         self.messageView.loadRequest(request)
     }
     
-    //MARK: Notifications
+    //MARK: Cloud Content
     func getGaeCloudContent(_ completion:@escaping()->Void) {
         let contentURL = self.baseURL + self.beaconUUID + "/" + self.beaconMajor + "/" + self.beaconMinor + "/"
         let imageCloudURL = URL(string:"\(contentURL)image.png")
@@ -234,8 +225,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         let notificationDataURL = URL(string: "\(contentURL)message.txt")
         var tempData = ""
         var imageExists = false
+        
+        //Check if image.png exists on the web server otherwise load a bundled image
         imageExists = ((try? imageCloudURL?.checkResourceIsReachable()) ?? false)!
-        print("Image: \(imageExists)")
         if (imageExists) {
             let task = URLSession.shared.dataTask(with: imageCloudURL!, completionHandler: { data, response, error in
                 
@@ -255,8 +247,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             task.resume()
         } else {
             self.assetImageURL = Bundle.main.url(forResource: "wolves", withExtension: "jpg")
-            print("No image: \(String(describing: self.assetImageURL))")
         }
+        
+        //Get the text content of the notification message
         do {
             tempData = try String(contentsOf: notificationDataURL!)
             self.assetText = tempData
@@ -268,6 +261,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         completion()
     }
     
+    //MARK: Notificaions
     //Compose the notification sent for a ranged beacon
     func sendNotification(major: String) {
         self.getGaeCloudContent({() in
@@ -279,16 +273,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             content.categoryIdentifier = ""
             
             do {
-                print("\(String(describing: self.assetImageURL))")
                 let url = self.assetImageURL
                 let attachment = try UNNotificationAttachment(identifier: "logo", url: url!, options: nil)
                 content.attachments = [attachment]
                 
                 if major == "2000" {
-                    //Add the action buttons in the notification
+                    //Add the action button in the notification
                     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    //appDelegate.notificationActionURL = self.baseURL + self.beaconUUID + "/" + self.beaconMajor + "/" + self.beaconMinor + "/index.html"
-                    appDelegate.notificationActionURL = "https://www.ncsu.edu"
+                    appDelegate.notificationActionURL = "https://2017.unccause.org"
                     let action = UNNotificationAction(identifier: "viewSite", title: "Visit Web Site", options: [])
                     let category = UNNotificationCategory(identifier: "viewCategory", actions: [action], intentIdentifiers: [], options: [])
                     UNUserNotificationCenter.current().setNotificationCategories([category])
@@ -300,7 +292,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-            let requestIdentifier = self.beaconMajor
+            //By setting a requestIdentifier, we prevent the system from sending mutiple notifications for the same beacon.
+            let requestIdentifier = self.beaconMinor
             
             let request = UNNotificationRequest(identifier: requestIdentifier, content: content, trigger: trigger)
             UNUserNotificationCenter.current().add(request) {
@@ -309,7 +302,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                     print("Problem adding notification: \(error.localizedDescription)")
                 }
                 else {
-                    // Set icon
                     print("added")
                 }
             }
@@ -383,7 +375,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         self.activityIndicator.isHidden = true
     }
     
-    //If the device fails to load a web page, then load hte defaul Into page included in the app bundle.
+    //If the device fails to load a web page, then load hte defaul Intro page included in the app bundle.
     func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
         print("Webview error: \(error)")
         self.messageView.loadRequest(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
