@@ -12,7 +12,7 @@ import UserNotifications
 import CloudKit
 import SafariServices
 import CoreBluetooth
-
+import WebKit
 
 class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewControllerDelegate, UIWebViewDelegate, CBPeripheralManagerDelegate {
     
@@ -39,7 +39,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     //https://storage.googleapis.com/your-project/B7D1027D-6788-416E-994F-EA11075F1765/3000/3002/index.html
     
     
-    @IBOutlet var messageView:UIWebView!
+    @IBOutlet var messageView:WKWebView!
     @IBOutlet var image:UIImageView!
     @IBOutlet var activityIndicator:UIActivityIndicatorView!
     
@@ -61,7 +61,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     //Load the beacon list and main UUID.  Load the welcome page of the app
     func loadBeaconData() {
-        messageView.delegate = self
+        //messageView.delegate = self
         self.beaconArray = appDelegate.beaconArray
         self.beaconUUID = appDelegate.beaconUUID
         self.baseURL = appDelegate.baseURL
@@ -77,11 +77,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         self.fileExistsAt(url: URL(string: homeURL)!, completion: ({(exists:Bool) in
             if exists {
                 DispatchQueue.main.async {
-                    self.messageView.loadRequest(request)
+                    self.messageView.load(request)
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.messageView.loadRequest(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
+                    self.messageView.load(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
                 }
             }
         }))
@@ -163,6 +163,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     //Ranging will detect relative distance to the beacon. It returns Far, Near or Immediate.
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+        print("Ranged: \(beacons.count)")
         if beacons.count > 0 {
             print("Beacon \(beacons[0])")
             //Filter the beaconArray to get the data matching the ranged beacon
@@ -170,15 +171,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
             let tempArray = beaconArray.filter{$0["minor"] == tempName}
             self.beaconMajor = tempArray[0]["major"]!
             self.beaconMinor = tempArray[0]["minor"]!
-            //self.beaconMajor = String(format: "%d",beacons[0].major.intValue)
-            //self.beaconMinor = String(format: "%d",beacons[0].minor.intValue)
             updateDistance(beacons[0].proximity)
         }
     }
     
     //Determine action to take when you detect a beacon based on the ranged distance
     func updateDistance(_ distance: CLProximity) {
-        UIView.animate(withDuration: 0.8) {
+        print("Range")
+        //UIView.animate(withDuration: 0.8) {
             switch distance {
             case .unknown:
                 break
@@ -206,7 +206,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                     self.lastUIBeaconMinor = self.beaconMinor
                 }
             }
-        }
+        //}
     }
     
     //Action for refresh button to reload the initial index.html page
@@ -214,7 +214,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         let homeURL = self.baseURL + "index.html"
         var request = URLRequest(url: URL(string:homeURL)!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
         request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-        self.messageView.loadRequest(request)
+        self.messageView.load(request)
     }
     
     //MARK: Cloud Content
@@ -347,7 +347,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
         self.getGaeCloudContent({() in
             var request = URLRequest(url: self.payloadURL!, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData)
             request.setValue("text/html; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-            self.messageView.loadRequest(request)
+            self.messageView.load(request)
         })
     }
     
@@ -378,7 +378,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     //If the device fails to load a web page, then load hte defaul Intro page included in the app bundle.
     func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
         print("Webview error: \(error)")
-        self.messageView.loadRequest(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
+        self.messageView.load(URLRequest(url: URL(fileURLWithPath: Bundle.main.path(forResource: "intro", ofType: "html")!)))
     }
     
     
