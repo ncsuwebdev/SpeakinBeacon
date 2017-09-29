@@ -163,7 +163,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     //Ranging will detect relative distance to the beacon. It returns Far, Near or Immediate.
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        print("Ranged: \(beacons.count)")
         if beacons.count > 0 {
             print("Beacon \(beacons[0])")
             //Filter the beaconArray to get the data matching the ranged beacon
@@ -177,36 +176,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
     
     //Determine action to take when you detect a beacon based on the ranged distance
     func updateDistance(_ distance: CLProximity) {
-        print("Range")
-        //UIView.animate(withDuration: 0.8) {
-            switch distance {
-            case .unknown:
-                break
-            case .far:
-                break
-            case .near:
-                break
-            case .immediate:
-                if self.beaconMajor == "1000" {
-                    if self.beaconMinor != self.lastUIBeaconMinor {
-                        self.updateView()
-                    }
-                    print("Beacon 1 \(self.beaconMajor) \(self.beaconMinor)")
-                    self.lastUIBeaconMinor = self.beaconMinor
-                } else if self.beaconMajor == "2000" {
-                    if self.beaconMinor != self.lastMessageBeaconMinor {
-                        self.sendNotification(major: self.beaconMajor)
-                    }
-                    self.lastMessageBeaconMinor = self.beaconMinor
-                } else if self.beaconMajor == "3000" {
-                    if self.beaconMinor != self.lastUIBeaconMinor {
-                        self.updateView()
-                    }
-                    print("Beacon 3 \(self.beaconMajor) \(self.beaconMinor)")
-                    self.lastUIBeaconMinor = self.beaconMinor
+        switch distance {
+        case .unknown:
+            break
+        case .far:
+            break
+        case .near:
+            break
+        case .immediate:
+            if self.beaconMajor == "1000" {
+                if self.beaconMinor != self.lastUIBeaconMinor {
+                    self.updateView()
                 }
+                print("Beacon 1 \(self.beaconMajor) \(self.beaconMinor)")
+                self.lastUIBeaconMinor = self.beaconMinor
+            } else if self.beaconMajor == "2000" {
+                if self.beaconMinor != self.lastMessageBeaconMinor {
+                    self.sendNotification(major: self.beaconMajor)
+                }
+                self.lastMessageBeaconMinor = self.beaconMinor
+            } else if self.beaconMajor == "3000" {
+                if self.beaconMinor != self.lastUIBeaconMinor {
+                    self.updateView()
+                }
+                print("Beacon 3 \(self.beaconMajor) \(self.beaconMinor)")
+                self.lastUIBeaconMinor = self.beaconMinor
             }
-        //}
+        }
     }
     
     //Action for refresh button to reload the initial index.html page
@@ -302,7 +298,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, SFSafariViewC
                     print("Problem adding notification: \(error.localizedDescription)")
                 }
                 else {
-                    print("added")
+                    print("added notification")
                 }
             }
         })
